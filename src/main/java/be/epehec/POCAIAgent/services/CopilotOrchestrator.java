@@ -2,6 +2,7 @@ package be.epehec.POCAIAgent.services;
 
 import be.epehec.POCAIAgent.plugins.AcademicIntegrityPlugin;
 import be.epehec.POCAIAgent.plugins.DlpPlugin;
+import be.epehec.POCAIAgent.plugins.SafeLinksPlugin;
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
@@ -35,6 +36,7 @@ public class CopilotOrchestrator {
 
     private final AcademicIntegrityPlugin integrityPlugin;
     private final DlpPlugin dlpPlugin;
+    private final SafeLinksPlugin safeLinksPlugin;
 
     @PostConstruct
     public void init() {
@@ -48,14 +50,16 @@ public class CopilotOrchestrator {
                 .withModelId(deploymentName)
                 .build();
 
-        // Register both plugins
+        // Register plugins
         KernelPlugin dlpAgent = KernelPluginFactory.createFromObject(dlpPlugin, "DlpAgent");
         KernelPlugin integrityAgent = KernelPluginFactory.createFromObject(integrityPlugin, "IntegrityAgent");
+        KernelPlugin safeLinksAgent = KernelPluginFactory.createFromObject(safeLinksPlugin, "SafeLinksAgent");
 
         this.kernel = Kernel.builder()
                 .withAIService(ChatCompletionService.class, chat)
                 .withPlugin(dlpAgent)
                 .withPlugin(integrityAgent)
+                .withPlugin(safeLinksAgent)
                 .build();
     }
 
