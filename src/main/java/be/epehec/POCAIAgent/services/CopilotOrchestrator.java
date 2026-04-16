@@ -1,10 +1,12 @@
 package be.epehec.POCAIAgent.services;
 
+import be.epehec.POCAIAgent.exceptions.PromptInjectionException;
 import be.epehec.POCAIAgent.plugins.AcademicIntegrityPlugin;
 import be.epehec.POCAIAgent.plugins.DlpPlugin;
 import be.epehec.POCAIAgent.plugins.SafeLinksPlugin;
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
+import com.azure.ai.openai.OpenAIServiceVersion;
 import com.azure.core.credential.AzureKeyCredential;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
@@ -43,6 +45,7 @@ public class CopilotOrchestrator {
         OpenAIAsyncClient client = new OpenAIClientBuilder()
                 .credential(new AzureKeyCredential(apiKey))
                 .endpoint(endpoint)
+                .serviceVersion(OpenAIServiceVersion.V2025_01_01_PREVIEW)
                 .buildAsyncClient();
 
         ChatCompletionService chat = OpenAIChatCompletion.builder()
@@ -79,7 +82,16 @@ public class CopilotOrchestrator {
                 .withVariable("doc", documentText)
                 .build();
 
-        FunctionResult<Object> result = kernel.invokePromptAsync(prompt, arguments).block();
-        return Objects.requireNonNull(result.getResult(), "AI answer is null").toString();
+        try {
+            FunctionResult<Object> result = kernel.invokePromptAsync(prompt, arguments).block();
+            return Objects.requireNonNull(result.getResult(), "AI output is null").toString();
+
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("content_filter")) {
+                throw new PromptInjectionException("Jailbreak attempt of the ai model blocked by OpenAI Azure Guardrail .");
+            }
+            //generic exceptions
+            throw e;
+        }
     }
 }

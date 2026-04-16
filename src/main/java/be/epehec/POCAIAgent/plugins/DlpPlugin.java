@@ -30,7 +30,7 @@ public class DlpPlugin {
     ) {
         // Real-world: Use regex, Azure AI Language (PII detection), or rules here.
         // PoC level: Simple string replacement for demonstration.
-        String censored = documentText.replaceAll("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}", "[REDACTED EMAIL]");
+        String censored = documentText.replaceAll("\\S+@\\S+\\.\\S+", "[REDACTED EMAIL]");
         censored = censored.replaceAll("sk-[a-zA-Z0-9]{32,}", "[REDACTED API KEY]");
 
         // Belgians phone numbers
