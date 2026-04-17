@@ -25,7 +25,23 @@ During the development of this PoC, several enterprise-level challenges were add
 
 * **Parallelization & Chunking:** Processing a large PDF sequentially causes severe HTTP timeouts and exceeds Azure OpenAI's context window. We implemented the Scatter-Gather pattern. The document is chunked and processed in parallel across multiple background threads, drastically reducing processing time and guaranteeing we never hit token limits.
 * **Async Exception Unboxing:** To keep Controllers clean, we implemented Aspect-Oriented Programming (AOP) using `@RestControllerAdvice`. When Azure AI Content Safety blocks a Prompt Injection during parallel processing, Java wraps the error inside a generic `CompletionException`. We explicitly "unbox" this exception during the Gather phase to extract the root cause and throw our custom `PromptInjectionException`, ensuring the API gracefully returns a strict `403 Forbidden` security alert.
+## 🛡️ Security & Exception Handling
 
+A core feature of this architecture is its robust and clean approach to error handling, specifically designed to catch AI manipulation attempts (Jailbreaks) even in a multithreaded environment.
+
+### 1. Custom Security Exceptions
+We created a dedicated `PromptInjectionException` to cleanly separate business/security logic from standard technical errors. When the Azure Guardrail detects an attack (like *"Disregard all previous instructions"*), the Orchestrator throws this specific exception instead of a generic server crash.
+
+### 2. Global Exception Handler (AOP)
+To maintain the **Separation of Concerns** principle, the API Controllers are completely stripped of `try/catch` blocks. Instead, we use **Aspect-Oriented Programming (AOP)** via Spring's `@RestControllerAdvice`.
+The `GlobalExceptionHandler` acts as a centralized control tower:
+* It catches `PromptInjectionException` and automatically formats a clean `403 Forbidden` HTTP response.
+* It catches `IllegalArgumentException` (e.g., empty files) and returns a `400 Bad Request`.
+* It catches unexpected errors and returns a safe `500 Internal Server Error` without leaking stack traces to the end-user.
+
+### 3. The "Unboxing" Challenge in Parallel Processing
+When switching to parallel processing with `CompletableFuture`, background threads do not throw exceptions directly to the main thread. Instead, Java wraps them in a `CompletionException`.
+If left untreated, our `@RestControllerAdvice` would fail to recognize the security alert. To solve this, our Gather phase implements an **Exception Unboxing** mechanism: it catches the `CompletionException`, extracts the root `PromptInjectionException` from the background thread, and safely re-throws it to the Global Handler.
 ## 📋 Prerequisites
 * **Java 21** or higher
 * **Maven**
