@@ -2,6 +2,7 @@ package be.epehec.POCAIAgent.plugins;
 
 import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.annotations.KernelFunctionParameter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
  * Threat Intelligence APIs to evaluate URLs in real-time.
  * </p>
  */
+@Slf4j
 @Component
 public class SafeLinksPlugin {
 
@@ -62,7 +64,7 @@ public class SafeLinksPlugin {
             boolean isMalicious = MALICIOUS_DOMAINS.stream().anyMatch(foundUrl::contains);
 
             if (isMalicious) {
-                System.out.println("Defender Alert: Blocked malicious link -> " + foundUrl);
+                log.info("Defender Alert: Blocked malicious link -> " + foundUrl);
                 processedText = processedText.replace(foundUrl, "[BLOCKED BY DEFENDER SAFE LINKS]");
             }
         }
