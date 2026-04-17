@@ -1,6 +1,5 @@
 package be.epehec.POCAIAgent.controllers;
 
-import be.epehec.POCAIAgent.exceptions.PromptInjectionException;
 import be.epehec.POCAIAgent.services.CopilotOrchestrator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

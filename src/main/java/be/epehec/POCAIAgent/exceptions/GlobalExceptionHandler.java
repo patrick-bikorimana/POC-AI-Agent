@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("⚠️ Bad Request: " + ex.getMessage());
+                .body("Bad Request: " + ex.getMessage());
     }
 
     /**
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneralExceptions(Exception ex) {
-        log.info("🔥 UNEXPECTED ERROR CAUGHT:");
+        log.info("UNEXPECTED ERROR CAUGHT:");
         ex.printStackTrace(); // Log the full stack trace for debugging
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

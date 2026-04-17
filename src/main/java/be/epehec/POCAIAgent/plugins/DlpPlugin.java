@@ -2,6 +2,7 @@ package be.epehec.POCAIAgent.plugins;
 
 import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.annotations.KernelFunctionParameter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 /**
  * Data Loss Prevention (DLP) Plugin for Microsoft Semantic Kernel.
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
  * Azure AI Language PII detection or Microsoft Purview.
  * </p>
  */
+@Slf4j
 @Component
 public class DlpPlugin {
     @DefineKernelFunction(
@@ -42,7 +44,7 @@ public class DlpPlugin {
         // 4. Belgians banks accounts
         censored = censored.replaceAll("BE\\d{2}\\s?\\d{4}\\s?\\d{4}\\s?\\d{4}", "[REDACTED IBAN]");
 
-        System.out.println("Shield active: Redacted document data.");
+        log.info("Shield active: Redacted document data.");
         return censored;
     }
 }

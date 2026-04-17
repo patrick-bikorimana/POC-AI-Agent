@@ -2,6 +2,7 @@ package be.epehec.POCAIAgent.plugins;
 
 import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.annotations.KernelFunctionParameter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
  * Analyzes document structure and content to detect potential AI generation
  * or academic misconduct markers.
  */
+@Slf4j
 @Component
 public class AcademicIntegrityPlugin {
     /**
@@ -39,7 +41,7 @@ public class AcademicIntegrityPlugin {
         // Marker 3: Perfect grammatical consistency (simulated)
         score += 15;
 
-        System.out.println("Academic Integrity Agent: Analysis complete.");
+        log.info("Academic Integrity Agent: Analysis complete.");
         return "AI Probability Score: " + score + "% | Reasoning: High structural consistency and generic transitions detected.";
     }
 }
